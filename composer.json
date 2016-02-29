@@ -1,7 +1,6 @@
 {
     "name": "muradg/simparse",
     "description": "simple configs parser",
-    "type": "library",
     "minimum-stability": "stable",
     "license": "MIT",
     "authors": [
