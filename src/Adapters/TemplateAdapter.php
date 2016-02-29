@@ -1,4 +1,6 @@
-<?php 
+<?php
+
+namespace SimParse\Adapters;
 
 interface TemplateAdapter {
 	public function get($pathToFile, $key);

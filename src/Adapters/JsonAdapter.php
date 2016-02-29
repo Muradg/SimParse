@@ -1,4 +1,8 @@
-<?php 
+<?php
+
+namespace SimParse\Adapters;
+
+use SimParse\Adapters\TemplateAdapter;
 
 class JsonAdapter implements TemplateAdapter {
 

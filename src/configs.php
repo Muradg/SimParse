@@ -1,8 +1,11 @@
 <?php 
 
-/**
-* 
-*/
+namespace SimParse;
+
+use SimParse\Adapters\PhpAdapter;
+use SimParse\Adapters\JsonAdapter;
+use SimParse\Adapters\XmlAdapter;
+
 class Config
 {
 	public $params = [];

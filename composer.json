@@ -1,0 +1,17 @@
+{
+    "name": "muradg/simparse",
+    "description": "simple configs parser",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Muradg",
+            "email": "voulkkk@yandex.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SimParse\\": "src/SimParse/"
+        }
+    }
+}
