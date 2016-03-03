@@ -2,15 +2,15 @@
 
 namespace SimParse\Adapters;
 
-use SimParse\Adapters\TemplateAdapter;
+use SimParse\Adapters\InterfaceAdapter;
 
-class PhpAdapter implements TemplateAdapter {
+class PhpAdapter implements InterfaceAdapter {
 
 	public function get($pathToFile, $key) 
 	{
 		if (file_exists($pathToFile)) {
 			$file = include $pathToFile;
-			return $file[$key];
+			return $file;
 		}
 	}
 

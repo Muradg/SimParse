@@ -2,7 +2,7 @@
 
 namespace SimParse\Adapters;
 
-interface TemplateAdapter {
+interface InterfaceAdapter {
 	public function get($pathToFile, $key);
 	public function set($pathToFile, $key, $value);
 }

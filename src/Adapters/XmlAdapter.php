@@ -2,9 +2,9 @@
 
 namespace SimParse\Adapters;
 
-use SimParse\Adapters\TemplateAdapter;
+use SimParse\Adapters\InterfaceAdapter;
 
-class XmlAdapter implements TemplateAdapter {
+class XmlAdapter implements InterfaceAdapter {
 
 	public function get($pathToFile, $key) {}
 	public function set($pathToFile, $key, $value) {}

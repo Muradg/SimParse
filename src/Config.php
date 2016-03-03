@@ -2,25 +2,47 @@
 
 namespace SimParse;
 
-use SimParse\Adapters\PhpAdapter;
-use SimParse\Adapters\JsonAdapter;
-use SimParse\Adapters\XmlAdapter;
-
 class Config
 {
-	public $params = [];
-	public $adapter = '';
+	/**
+	 * [$adapter]
+	 * @var [object]
+	 */
+	protected $adapter;
 
+	/**
+	 * [$types]
+	 * @var [array]
+	 */
+	protected $types = ['xml', 'php', 'json'];
+
+	/**
+	 * [$type default type]
+	 * @var string
+	 */
 	private $type = 'PHP';
+	
+	/**
+	 * [$dirname default dirname]
+	 * @var string
+	 */
 	private $dirname = 'configs/';
-	private static $types = ['xml', 'php', 'json'];
 
+	/**
+	 * [__construct]
+	 * @param string $type
+	 * @param string $dirname
+	 */
 	public function __construct($type = '', $dirname = '')
 	{
 		$this->setType($type);
 		$this->setDirectory($dirname);
 	}
 
+	/**
+	 * [setDirectory]
+	 * @param [string] $dirname
+	 */
 	public function setDirectory($dirname) 
 	{
 		$dirname = $_SERVER['DOCUMENT_ROOT'].'/'.$dirname;
@@ -30,34 +52,49 @@ class Config
 		$this->dirname = $dirname;
 	}
 
+	/**
+	 * [getDirectory]
+	 * @return [string]
+	 */
 	public function getDirectory() 
 	{
 		return $this->dirname;
 	}
 
+	/**
+	 * [setType]
+	 * @param [string] $type
+	 */
 	public function setType($type) 
 	{
 		$type = strtolower($type);
-		if (in_array($type, self::$types)) {
+		if (in_array($type, $this->types)) {
 
 			$className = ucfirst($type).'Adapter';
-			$config = new $className();
+			$config = new $className;
 
 			$this->adapter = $config;
 			$this->type = $type;
-			
-			return true;
 		}
 
-		return false;
 	}
 
+	/**
+	 * [getType]
+	 * @return [string]
+	 */
 	public function getType() 
 	{
 		return $this->type;
 	}
 
-	public function getParam($var) {
+	/**
+	 * [getParam]
+	 * @param  [string] $var
+	 * @return [array]
+	 */
+	public function getParams($var)
+	{
 		$params 	= explode('.', $var);
 		$key 		= array_pop($params);
 		$file 		= implode('', $params).'.'.$this->type;
@@ -66,5 +103,7 @@ class Config
 
 		return $this->adapter->get($pathToFile, $key);
 	}
+
+	public function get() {}
 
 }
