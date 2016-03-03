@@ -5,43 +5,50 @@ namespace SimParse;
 class Config
 {
 	/**
-	 * [$adapter]
-	 * @var [object]
+	 * @var object
 	 */
 	protected $adapter;
 
 	/**
-	 * [$types]
-	 * @var [array]
+	 * array of adapters
+	 * @var array
 	 */
-	protected $types = ['xml', 'php', 'json'];
+	protected $adapters = [
+		'php' 	=> 'SimParse\Adapters\PhpAdapter',
+		'json' 	=> 'SimParse\Adapters\JsonAdapter',
+		'xml' 	=> 'SimParse\Adapters\XmlAdapter',
+	];
 
 	/**
-	 * [$type default type]
+	 * default interface
 	 * @var string
 	 */
-	private $type = 'PHP';
-	
-	/**
-	 * [$dirname default dirname]
-	 * @var string
-	 */
-	private $dirname = 'configs/';
+	protected $interface = 'SimParse\Adapters\InterfaceAdapter';
 
 	/**
-	 * [__construct]
+	 * default type
+	 * @var string
+	 */
+	protected $type = 'php';
+
+	/**
+	 * @var string
+	 */
+	protected $dirname;
+
+	/**
+	 * __construct
 	 * @param string $type
 	 * @param string $dirname
 	 */
-	public function __construct($type = '', $dirname = '')
+	public function __construct($type, $dirname)
 	{
 		$this->setType($type);
 		$this->setDirectory($dirname);
 	}
 
 	/**
-	 * [setDirectory]
-	 * @param [string] $dirname
+	 * @param string $dirname
 	 */
 	public function setDirectory($dirname) 
 	{
@@ -53,8 +60,7 @@ class Config
 	}
 
 	/**
-	 * [getDirectory]
-	 * @return [string]
+	 * @return string
 	 */
 	public function getDirectory() 
 	{
@@ -62,26 +68,22 @@ class Config
 	}
 
 	/**
-	 * [setType]
-	 * @param [string] $type
+	 * @param string $type
 	 */
 	public function setType($type) 
 	{
 		$type = strtolower($type);
-		if (in_array($type, $this->types)) {
+		if (array_key_exists($type, $this->adapters)) {
 
-			$className = ucfirst($type).'Adapter';
-			$config = new $className;
+			$config = new $this->adapters[$type];
 
 			$this->adapter = $config;
 			$this->type = $type;
 		}
-
 	}
 
 	/**
-	 * [getType]
-	 * @return [string]
+	 * @return string
 	 */
 	public function getType() 
 	{
@@ -89,21 +91,41 @@ class Config
 	}
 
 	/**
-	 * [getParam]
-	 * @param  [string] $var
-	 * @return [array]
+	 * @param string $type
+	 * @param string $path
 	 */
-	public function getParams($var)
+	public function addAdapter($type, $path) 
 	{
-		$params 	= explode('.', $var);
-		$key 		= array_pop($params);
-		$file 		= implode('', $params).'.'.$this->type;
+		if (class_exists($path)) {
+			$interfaces = class_implements($path);
+			if (in_array($this->interface, $interfaces)) {
+				$this->adapters[$type] = $path;
+			}
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAdapters() 
+	{
+		return $this->adapters;
+	}
+
+	/**
+	 * return array configurations
+	 * @param  [string] $var
+	 * @return array|string
+	 */
+	public function get($var) 
+	{
+		$params = explode('.', $var);
+		$key = array_pop($params);
+		$file = implode('', $params).'.'.$this->type;
 
 		$pathToFile = $this->dirname.$file;
 
 		return $this->adapter->get($pathToFile, $key);
 	}
-
-	public function get() {}
 
 }
