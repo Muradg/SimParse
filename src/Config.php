@@ -2,6 +2,9 @@
 
 namespace SimParse;
 
+use Exception;
+use OutOfBoundsException;
+
 class Config
 {
 	/**
@@ -10,7 +13,7 @@ class Config
 	protected $adapter;
 
 	/**
-	 * array of adapters
+	 * Array of adapters.
 	 * @var array
 	 */
 	protected $adapters = [
@@ -20,13 +23,13 @@ class Config
 	];
 
 	/**
-	 * default interface
+	 * Default interface.
 	 * @var string
 	 */
 	protected $interface = 'SimParse\Adapters\InterfaceAdapter';
 
 	/**
-	 * default type
+	 * Default type.
 	 * @var string
 	 */
 	protected $type = 'php';
@@ -37,7 +40,17 @@ class Config
 	protected $dirname;
 
 	/**
-	 * __construct
+	 * @var array
+	 */
+	protected $query;
+
+	/**
+	 * @var array
+	 */
+	protected $configurations;
+
+	/**
+	 * Construct.
 	 * @param string $type
 	 * @param string $dirname
 	 */
@@ -52,11 +65,11 @@ class Config
 	 */
 	public function setDirectory($dirname) 
 	{
-		$dirname = $_SERVER['DOCUMENT_ROOT'].'/'.$dirname;
-		if (!is_dir($dirname)) {
-			mkdir($dirname);
+		if (is_dir($dirname)) {
+			$this->dirname = $dirname;
+		} else {
+			throw new Exception(sprintf('Folder "%s" is not found', $dirname));
 		}
-		$this->dirname = $dirname;
 	}
 
 	/**
@@ -73,12 +86,12 @@ class Config
 	public function setType($type) 
 	{
 		$type = strtolower($type);
+		
 		if (array_key_exists($type, $this->adapters)) {
-
-			$config = new $this->adapters[$type];
-
-			$this->adapter = $config;
+			$this->adapter = new $this->adapters[$type];
 			$this->type = $type;
+		} else {
+			throw new OutOfBoundsException(sprintf('Type %s was not found in the array of adapters', $type));
 		}
 	}
 
@@ -100,7 +113,11 @@ class Config
 			$interfaces = class_implements($path);
 			if (in_array($this->interface, $interfaces)) {
 				$this->adapters[$type] = $path;
+			} else {
+				throw new Exception(sprintf("Class %s must implement interface %s", $path, $this->interface));
 			}
+		} else {
+			throw new Exception(sprintf('Class "%s" is not found', $path));
 		}
 	}
 
@@ -113,19 +130,39 @@ class Config
 	}
 
 	/**
-	 * return array configurations
+	 * Return array configurations.
 	 * @param  [string] $var
 	 * @return array|string
 	 */
 	public function get($var) 
 	{
-		$params = explode('.', $var);
-		$key = array_pop($params);
-		$file = implode('', $params).'.'.$this->type;
+		$this->query = explode('.', $var);
+		if (count($this->query) <= 1) {
+			throw new Exception(sprintf('Missing additional arguments in method %s', __METHOD__));
+		}
 
-		$pathToFile = $this->dirname.$file;
+		$fileName = $this->dirname . array_shift($this->query) .'.'. $this->type;
 
-		return $this->adapter->get($pathToFile, $key);
+		$this->configurations = $this->adapter->get($fileName);
+
+		return $this->getElement();
+	}
+
+	public function getElement() 
+	{	
+		foreach ($this->configurations as $key => $value) {
+			if (in_array($key, $this->query)) {
+
+				if (is_array($value)) {
+					$this->configurations = $this->configurations[$key];
+					array_shift($this->query);
+
+					return $this->getElement();
+				}
+
+				return $value;
+			}
+		}
 	}
 
 }

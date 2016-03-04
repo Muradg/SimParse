@@ -6,7 +6,7 @@ use SimParse\Adapters\InterfaceAdapter;
 
 class PhpAdapter implements InterfaceAdapter {
 
-	public function get($pathToFile, $key) 
+	public function get($pathToFile) 
 	{
 		if (file_exists($pathToFile)) {
 			$file = include $pathToFile;
