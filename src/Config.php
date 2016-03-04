@@ -23,53 +23,37 @@ class Config
 	];
 
 	/**
-	 * Default interface.
-	 * @var string
-	 */
-	protected $interface = 'SimParse\Adapters\InterfaceAdapter';
-
-	/**
 	 * Default type.
 	 * @var string
 	 */
-	protected $type = 'php';
+	protected $type;
 
 	/**
 	 * @var string
 	 */
-	protected $dirname;
-
-	/**
-	 * @var array
-	 */
-	protected $query;
-
-	/**
-	 * @var array
-	 */
-	protected $configurations;
+	protected $directory;
 
 	/**
 	 * Construct.
 	 * @param string $type
-	 * @param string $dirname
+	 * @param string $directory
 	 */
-	public function __construct($type, $dirname)
+	public function __construct($directory, $type = 'php')
 	{
+		$this->setDirectory($directory);
 		$this->setType($type);
-		$this->setDirectory($dirname);
 	}
 
 	/**
-	 * @param string $dirname
+	 * @param string $directory
 	 */
-	public function setDirectory($dirname) 
+	public function setDirectory($directory) 
 	{
-		if (is_dir($dirname)) {
-			$this->dirname = $dirname;
-		} else {
-			throw new Exception(sprintf('Folder "%s" is not found', $dirname));
+		if (!is_dir($directory)) {
+			throw new Exception(sprintf('Folder "%s" is not found', $directory));
 		}
+
+		$this->directory = $directory;
 	}
 
 	/**
@@ -77,7 +61,7 @@ class Config
 	 */
 	public function getDirectory() 
 	{
-		return $this->dirname;
+		return $this->directory;
 	}
 
 	/**
@@ -87,12 +71,12 @@ class Config
 	{
 		$type = strtolower($type);
 		
-		if (array_key_exists($type, $this->adapters)) {
-			$this->adapter = new $this->adapters[$type];
-			$this->type = $type;
-		} else {
+		if (!array_key_exists($type, $this->adapters)) {
 			throw new OutOfBoundsException(sprintf('Type %s was not found in the array of adapters', $type));
 		}
+
+		$this->adapter = new $this->adapters[$type];
+		$this->type = $type;
 	}
 
 	/**
@@ -109,16 +93,19 @@ class Config
 	 */
 	public function addAdapter($type, $path) 
 	{
-		if (class_exists($path)) {
-			$interfaces = class_implements($path);
-			if (in_array($this->interface, $interfaces)) {
-				$this->adapters[$type] = $path;
-			} else {
-				throw new Exception(sprintf("Class %s must implement interface %s", $path, $this->interface));
-			}
-		} else {
+		$interface = 'SimParse\Adapters\InterfaceAdapter';
+
+		if (!class_exists($path)) {
 			throw new Exception(sprintf('Class "%s" is not found', $path));
 		}
+
+		$inherits = class_implements($path);
+
+		if (!in_array($interface, $inherits)) {
+			throw new Exception(sprintf("Class %s must implement interface %s", $path, $interface));
+		}
+
+		$this->adapters[$type] = $path;
 	}
 
 	/**
@@ -131,33 +118,35 @@ class Config
 
 	/**
 	 * Return array configurations.
-	 * @param  [string] $var
 	 * @return array|string
 	 */
-	public function get($var) 
+	public function get($var, $default = '') 
 	{
-		$this->query = explode('.', $var);
-		if (count($this->query) <= 1) {
+		$query = explode('.', $var);
+
+		if (count($query) <= 1) {
 			throw new Exception(sprintf('Missing additional arguments in method %s', __METHOD__));
 		}
 
-		$fileName = $this->dirname . array_shift($this->query) .'.'. $this->type;
+		$filename = sprintf('%s%s.%s', $this->directory, array_shift($query), $this->type);
+		$configurations = $this->adapter->get($filename);
 
-		$this->configurations = $this->adapter->get($fileName);
+		$result = $this->getElement($query, $configurations);
 
-		return $this->getElement();
+		return ($result == null ? $default : $result);
 	}
 
-	public function getElement() 
-	{	
-		foreach ($this->configurations as $key => $value) {
-			if (in_array($key, $this->query)) {
-
+	/**
+	 * @param  array $query
+	 * @param  array $configurations
+	 * @return string
+	 */
+	public function getElement($query, $configurations) 
+	{
+		foreach ($configurations as $key => $value) {
+			if (in_array($key, $query)) {
 				if (is_array($value)) {
-					$this->configurations = $this->configurations[$key];
-					array_shift($this->query);
-
-					return $this->getElement();
+					return $this->getElement(array_shift($query), $configurations[$key]);
 				}
 
 				return $value;
