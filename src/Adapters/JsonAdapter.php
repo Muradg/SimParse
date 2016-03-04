@@ -2,9 +2,9 @@
 
 namespace SimParse\Adapters;
 
-use SimParse\Adapters\InterfaceAdapter;
+use SimParse\Adapters\AdapterInterface;
 
-class JsonAdapter implements InterfaceAdapter {
+class JsonAdapter implements AdapterInterface {
 
 	public function get($pathToFile, $key) {}
 	public function set($pathToFile, $key, $value) {}

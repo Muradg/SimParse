@@ -53,6 +53,10 @@ class Config
 			throw new Exception(sprintf('Folder "%s" is not found', $directory));
 		}
 
+		if (substr($directory, -1) != '/') {
+			$directory.='/';
+		}
+
 		$this->directory = $directory;
 	}
 
@@ -93,7 +97,7 @@ class Config
 	 */
 	public function addAdapter($type, $path) 
 	{
-		$interface = 'SimParse\Adapters\InterfaceAdapter';
+		$interface = 'SimParse\Adapters\AdapterInterface';
 
 		if (!class_exists($path)) {
 			throw new Exception(sprintf('Class "%s" is not found', $path));
