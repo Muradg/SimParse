@@ -2,16 +2,35 @@
 
 ##Example
 
-First we need to create a folder to store configurations. Then, when the object is initialized, the first parameter to specify specify the file type and the second - a directory, where the configs are stored.
+Firstly, we need to create a folder to store configurations. Then, when we initialize the object, the first parameter is passed the directory where the files will be stored configurations. The second parameter, specify a file type. (Default php)
 
 ```php
-	$config = new SimParse\Config('php', 'configs/');
+	$config = new SimParse\Config('configs/', 'php');
 ```
 
-Then you can get the configuration file through your point. The first parameter specifies the name of the file, and the following parameters indicate the keys in an array of configurations
+When an object is created, we can expand the library by adding your adapters by addAdapter:
 
 ```php
-	echo $config->get('config.sqlite');
+	$config->addAdapter('serialize', 'SimParse\Adapters\SerializeAdapter')
+```
+
+To get the data from the file, use the function get ().
+For example, to retrieve data from configs/config.php file we write the following:
+
+```php
+	[
+		'mysql' => [
+			'host' 	=> 'default',
+			'user' 	=> 'default',
+			'db' 	=> 'default',
+		]
+	]
+```
+
+To get the value of db, the code will be as follows:
+
+```php
+	$config->get('config.mysql.db');
 ```
 
 Return value from file configs/config.php => key [sqlite]
