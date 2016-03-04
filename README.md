@@ -14,7 +14,7 @@ When an object is created, we can expand the library by adding your adapters by 
 	$config->addAdapter('serialize', 'SimParse\Adapters\SerializeAdapter')
 ```
 
-To get the data from the file, use the function get ().
+To get the data from the file, use the function get().
 For example, to retrieve data from configs/config.php file we write the following:
 
 ```php
