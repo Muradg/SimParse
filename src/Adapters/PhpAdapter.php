@@ -6,15 +6,13 @@ use SimParse\Adapters\AdapterInterface;
 
 class PhpAdapter implements AdapterInterface {
 
-	public function get($pathToFile) 
+	public function get($path) 
 	{
-		if (file_exists($pathToFile)) {
-			$file = include $pathToFile;
-			
-			return $file;
-		}
+		$params = require $path;
+
+		return $params;
 	}
 
-	public function set($pathToFile, $key, $value) {}
+	public function set($path, $key, $value) {}
 
 }

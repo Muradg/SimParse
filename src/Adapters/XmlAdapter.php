@@ -6,7 +6,7 @@ use SimParse\Adapters\AdapterInterface;
 
 class XmlAdapter implements AdapterInterface {
 
-	public function get($pathToFile, $key) {}
-	public function set($pathToFile, $key, $value) {}
+	public function get($path, $key) {}
+	public function set($path, $key, $value) {}
 	
 }

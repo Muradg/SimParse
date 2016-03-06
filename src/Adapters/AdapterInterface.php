@@ -3,6 +3,6 @@
 namespace SimParse\Adapters;
 
 interface AdapterInterface {
-	public function get($pathToFile);
-	public function set($pathToFile, $key, $value);
+	public function get($path);
+	public function set($path, $key, $value);
 }

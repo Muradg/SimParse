@@ -133,9 +133,17 @@ class Config
 		}
 
 		$filename = sprintf('%s%s.%s', $this->directory, array_shift($query), $this->type);
+
+		if (!file_exists($filename)) {
+			throw new Exception(sprintf('File %s is not found', $filename));
+		}
+
+		$result = null;
 		$configurations = $this->adapter->get($filename);
 
-		$result = $this->getElement($query, $configurations);
+		if (is_array($configurations)) {
+			$result = $this->getElement($configurations, $query);
+		}
 
 		return ($result == null ? $default : $result);
 	}
@@ -145,12 +153,14 @@ class Config
 	 * @param  array $configurations
 	 * @return string
 	 */
-	public function getElement($query, $configurations) 
+	public function getElement($configurations, $query) 
 	{
 		foreach ($configurations as $key => $value) {
 			if (in_array($key, $query)) {
 				if (is_array($value)) {
-					return $this->getElement(array_shift($query), $configurations[$key]);
+					array_shift($query);
+
+					return $this->getElement($configurations[$key], $query);
 				}
 
 				return $value;
