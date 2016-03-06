@@ -5,7 +5,7 @@
 Firstly, we need to create a folder to store configurations. Then, when we initialize the object, the first parameter is passed the directory where the files will be stored configurations. The second parameter, specify a file type. (Default php)
 
 ```php
-	$config = new SimParse\Config('configs/', 'php');
+	$config = new SimParse\Config('configs', 'php');
 ```
 
 When an object is created, we can expand the library by adding your adapters by addAdapter:
@@ -33,4 +33,3 @@ To get the value of db, the code will be as follows:
 	$config->get('config.mysql.db');
 ```
 
-Return value from file configs/config.php => key [sqlite]
